@@ -78,9 +78,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const hasPermission = (permission: string): boolean => {
-    if (!rol) return false;
-    if (rol.permisos === 'all') return true;
-    return rol.permisos?.includes(permission) || false;
+    console.log("Checking permission:", permission, "for rol:", rol);
+    if (!rol) {
+      console.log("No rol found, returning false.");
+      return false;
+    }
+    if (rol.permisos === 'all') {
+      console.log("Rol has all permissions, returning true.");
+      return true;
+    }
+    const result = rol.permisos?.includes(permission) || false;
+    console.log("Permission check result:", result);
+    return result;
   };
 
   const value: AuthContextType = {

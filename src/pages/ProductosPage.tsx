@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ProductoService } from '../services/ProductoService';
-import { getLocalStorageData } from '../data/localStorage';
+import { UnidadService } from '../services/UnidadService';
+import { ImpuestoService } from '../services/ImpuestoService';
 import { Producto, Unidad, Impuesto } from '../types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,7 @@ export const ProductosPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    console.log("Loading productos...");
     loadProductos();
     loadUnidades();
     loadImpuestos();
@@ -44,13 +46,11 @@ export const ProductosPage: React.FC = () => {
   };
 
   const loadUnidades = () => {
-    const data = getLocalStorageData();
-    setUnidades(data.unidades);
+    setUnidades(UnidadService.getAll());
   };
 
   const loadImpuestos = () => {
-    const data = getLocalStorageData();
-    setImpuestos(data.impuestos);
+    setImpuestos(ImpuestoService.getAll());
   };
 
   const loadCategorias = () => {

@@ -13,6 +13,9 @@ import { ProductosPage } from './pages/ProductosPage';
 import { InventarioPage } from './pages/InventarioPage';
 import { POSPage } from './pages/POSPage';
 import { ReportesPage } from './pages/ReportesPage';
+import { EmpleadosPage } from './pages/EmpleadosPage';
+import { ProveedoresPage } from './pages/ProveedoresPage';
+import { ConfiguracionPage } from './pages/ConfiguracionPage';
 import { initializeData } from './data/localStorage';
 import { initializeDemoUsers } from './utils/initializeDemo';
 import './App.css';
@@ -62,11 +65,31 @@ function App() {
               } 
             />
             <Route 
+              path="/empleados" 
+              element={
+                <ProtectedRoute requiredPermission="all">
+                  <Layout>
+                    <EmpleadosPage />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/clientes" 
               element={
                 <ProtectedRoute>
                   <Layout>
                     <ClientesPage />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/proveedores" 
+              element={
+                <ProtectedRoute requiredPermission="all">
+                  <Layout>
+                    <ProveedoresPage />
                   </Layout>
                 </ProtectedRoute>
               } 
@@ -111,6 +134,16 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route 
+              path="/configuracion" 
+              element={
+                <ProtectedRoute requiredPermission="all">
+                  <Layout>
+                    <ConfiguracionPage />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
@@ -120,5 +153,5 @@ function App() {
   );
 }
 
-export default App;
+export default App;p;
 

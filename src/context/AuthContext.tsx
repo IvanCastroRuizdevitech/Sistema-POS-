@@ -42,9 +42,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const data = getLocalStorageData();
     
     // Find user by email
-    const foundUser = data.usuarios.find(u => u.correo === correo && u.activo);
+    const foundUser = data.usuarios.find(u => u.email === correo && u.activo);
     
-    if (!foundUser || foundUser.contraseña !== contraseña) {
+    if (!foundUser || foundUser.password !== contraseña) {
       return false;
     }
 

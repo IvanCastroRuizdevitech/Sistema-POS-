@@ -350,7 +350,6 @@ export const ProductosPage: React.FC = () => {
                 <TableRow className="">
                   <TableHead className="">Nombre</TableHead>
                   <TableHead className="">Categoría</TableHead>
-                  <TableHead className="">Categoría</TableHead>
                   <TableHead className="">Precio</TableHead>
                   <TableHead className="">Unidad</TableHead>
                   <TableHead className="">Impuesto</TableHead>

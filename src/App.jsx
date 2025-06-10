@@ -12,6 +12,7 @@ import { ClientesPage } from './pages/ClientesPage';
 import { ProductosPage } from './pages/ProductosPage';
 import { InventarioPage } from './pages/InventarioPage';
 import { POSPage } from './pages/POSPage';
+import { ReportesPage } from './pages/ReportesPage';
 import { initializeData } from './data/localStorage';
 import { initializeDemoUsers } from './utils/initializeDemo';
 import './App.css';
@@ -96,6 +97,16 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <POSPage />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/reportes" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ReportesPage />
                   </Layout>
                 </ProtectedRoute>
               } 

@@ -190,7 +190,7 @@ export const ReportesPage: React.FC = () => {
 
       {/* Filtros */}
       <Card>
-        <CardHeader>
+        <CardHeader className="">
           <CardTitle>Filtros de Reporte</CardTitle>
           <CardDescription>Seleccione los criterios para generar los reportes</CardDescription>
         </CardHeader>
@@ -201,10 +201,10 @@ export const ReportesPage: React.FC = () => {
               <SelectTrigger>
                 <SelectValue placeholder="Todas las tiendas" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Todas las tiendas</SelectItem>
+              <SelectContent className="">
+                <SelectItem value="" className="">Todas las tiendas</SelectItem>
                 {tiendas.map(tienda => (
-                  <SelectItem key={tienda.id} value={tienda.id}>
+                  <SelectItem key={tienda.id} value={tienda.id} className="">
                     {tienda.nombre}
                   </SelectItem>
                 ))}
@@ -277,7 +277,7 @@ export const ReportesPage: React.FC = () => {
       {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardHeader>
+          <CardHeader className="">
             <CardTitle>Ventas Diarias</CardTitle>
             <CardDescription>Evolución de las ventas en el tiempo</CardDescription>
           </CardHeader>
@@ -297,7 +297,7 @@ export const ReportesPage: React.FC = () => {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="">
             <CardTitle>Productos Más Vendidos</CardTitle>
             <CardDescription>Top 10 productos por cantidad vendida</CardDescription>
           </CardHeader>
@@ -318,7 +318,7 @@ export const ReportesPage: React.FC = () => {
 
       {/* Tabla de ventas recientes */}
       <Card>
-        <CardHeader>
+        <CardHeader className="">
           <CardTitle>Ventas Recientes</CardTitle>
           <CardDescription>Últimas transacciones en el período seleccionado</CardDescription>
         </CardHeader>
@@ -362,7 +362,7 @@ export const ReportesPage: React.FC = () => {
 
       {/* Tabla de productos más vendidos */}
       <Card>
-        <CardHeader>
+        <CardHeader className="">
           <CardTitle>Ranking de Productos</CardTitle>
           <CardDescription>Productos ordenados por cantidad vendida</CardDescription>
         </CardHeader>

@@ -220,9 +220,9 @@ export const ProductosPage: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una unidad" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="">
                       {unidades.map((unidad) => (
-                        <SelectItem key={unidad.id} value={unidad.id}>
+                        <SelectItem key={unidad.id} value={unidad.id} className="">
                           {unidad.nombre}
                         </SelectItem>
                       ))}
@@ -239,9 +239,9 @@ export const ProductosPage: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione un impuesto" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="">
                       {impuestos.map((impuesto) => (
-                        <SelectItem key={impuesto.id} value={impuesto.id}>
+                        <SelectItem key={impuesto.id} value={impuesto.id} className="">
                           {impuesto.nombre} ({impuesto.porcentaje}%)
                         </SelectItem>
                       ))}
@@ -250,7 +250,7 @@ export const ProductosPage: React.FC = () => {
                 </div>
                 {error && (
                   <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
+                    <AlertDescription className="">{error}</AlertDescription>
                   </Alert>
                 )}
               </div>
@@ -287,10 +287,10 @@ export const ProductosPage: React.FC = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Todas las categorías" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todas las categorías</SelectItem>
+                <SelectContent className="">
+                  <SelectItem value="" className="">Todas las categorías</SelectItem>
                   {categorias.map((categoria, index) => (
-                    <SelectItem key={index} value={categoria}>
+                    <SelectItem key={index} value={categoria} className="">
                       {categoria}
                     </SelectItem>
                   ))}
@@ -302,7 +302,7 @@ export const ProductosPage: React.FC = () => {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="">
           <CardTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
             Lista de Productos

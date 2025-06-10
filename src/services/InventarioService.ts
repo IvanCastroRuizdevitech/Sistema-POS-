@@ -4,22 +4,22 @@ import { Inventario, Kardex, TipoMovimientoEnum } from '../types';
 export class InventarioService {
   static getAll(): Inventario[] {
     const data = getLocalStorageData();
-    return data.inventario;
+    return data.inventarios;
   }
 
   static getByTienda(tiendaId: string): Inventario[] {
     const data = getLocalStorageData();
-    return data.inventario.filter(i => i.tienda_id === tiendaId);
+    return data.inventarios.filter(i => i.tienda_id === tiendaId);
   }
 
   static getByProducto(productoId: string): Inventario[] {
     const data = getLocalStorageData();
-    return data.inventario.filter(i => i.producto_id === productoId);
+    return data.inventarios.filter(i => i.producto_id === productoId);
   }
 
   static getByProductoAndTienda(productoId: string, tiendaId: string): Inventario | undefined {
     const data = getLocalStorageData();
-    return data.inventario.find(i => i.producto_id === productoId && i.tienda_id === tiendaId);
+    return data.inventarios.find(i => i.producto_id === productoId && i.tienda_id === tiendaId);
   }
 
   static getSaldoProducto(productoId: string, tiendaId: string): number {
@@ -29,7 +29,7 @@ export class InventarioService {
 
   static getProductosBajoStock(tiendaId?: string, limite: number = 10): Inventario[] {
     const data = getLocalStorageData();
-    let inventarios = data.inventario.filter(i => i.saldo <= limite);
+    let inventarios = data.inventarios.filter(i => i.saldo <= limite);
     
     if (tiendaId) {
       inventarios = inventarios.filter(i => i.tienda_id === tiendaId);
@@ -47,7 +47,7 @@ export class InventarioService {
     const data = getLocalStorageData();
     
     // Find or create inventory record
-    let inventario = data.inventario.find(i => 
+    let inventario = data.inventarios.find(i => 
       i.producto_id === productoId && i.tienda_id === tiendaId
     );
 
@@ -58,7 +58,7 @@ export class InventarioService {
         tienda_id: tiendaId,
         saldo: 0
       };
-      data.inventario.push(inventario);
+      data.inventarios.push(inventario);
     }
 
     // Calculate new balance
@@ -91,7 +91,9 @@ export class InventarioService {
       fecha: new Date(),
       tipo_movimiento: tipoMovimiento,
       cantidad: cantidad,
-      saldo: nuevoSaldo
+      saldo_anterior: inventario.saldo,
+      saldo_nuevo: nuevoSaldo,
+      observaciones: `Movimiento de ${tipoMovimiento.toLowerCase()}`
     };
 
     data.kardex.push(kardex);

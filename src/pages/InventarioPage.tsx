@@ -169,9 +169,9 @@ export const InventarioPage: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una tienda" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="">
                       {tiendas.map((tienda) => (
-                        <SelectItem key={tienda.id} value={tienda.id}>
+                        <SelectItem key={tienda.id} value={tienda.id} className="">
                           {tienda.nombre}
                         </SelectItem>
                       ))}
@@ -188,9 +188,9 @@ export const InventarioPage: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione un producto" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="">
                       {productos.map((producto) => (
-                        <SelectItem key={producto.id} value={producto.id}>
+                        <SelectItem key={producto.id} value={producto.id} className="">
                           {producto.nombre} - {producto.categoria}
                         </SelectItem>
                       ))}
@@ -207,14 +207,14 @@ export const InventarioPage: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={TipoMovimientoEnum.Entrada}>
+                    <SelectContent className="">
+                      <SelectItem value={TipoMovimientoEnum.Entrada} className="">
                         <div className="flex items-center gap-2">
                           <TrendingUp className="h-4 w-4 text-green-600" />
                           Entrada
                         </div>
                       </SelectItem>
-                      <SelectItem value={TipoMovimientoEnum.Salida}>
+                      <SelectItem value={TipoMovimientoEnum.Salida} className="">
                         <div className="flex items-center gap-2">
                           <TrendingDown className="h-4 w-4 text-red-600" />
                           Salida
@@ -237,7 +237,7 @@ export const InventarioPage: React.FC = () => {
                 </div>
                 {error && (
                   <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
+                    <AlertDescription className="">{error}</AlertDescription>
                   </Alert>
                 )}
               </div>
@@ -258,7 +258,7 @@ export const InventarioPage: React.FC = () => {
       {productosBajoStock.length > 0 && (
         <Alert className="mb-6">
           <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
+          <AlertDescription className="">
             <strong>Alerta de Stock Bajo:</strong> {productosBajoStock.length} producto(s) con stock bajo (≤10 unidades)
           </AlertDescription>
         </Alert>
@@ -284,10 +284,10 @@ export const InventarioPage: React.FC = () => {
                 <SelectTrigger>
                   <SelectValue placeholder="Todas las tiendas" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">Todas las tiendas</SelectItem>
+                <SelectContent className="">
+                  <SelectItem value="" className="">Todas las tiendas</SelectItem>
                   {tiendas.map((tienda) => (
-                    <SelectItem key={tienda.id} value={tienda.id}>
+                    <SelectItem key={tienda.id} value={tienda.id} className="">
                       {tienda.nombre}
                     </SelectItem>
                   ))}
@@ -299,7 +299,7 @@ export const InventarioPage: React.FC = () => {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="">
           <CardTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
             Stock de Productos

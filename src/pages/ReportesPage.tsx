@@ -39,7 +39,7 @@ export const ReportesPage: React.FC = () => {
   const { persona } = useAuth();
   const [ventas, setVentas] = useState<VentaReporte[]>([]);
   const [tiendas, setTiendas] = useState<Tienda[]>([]);
-  const [selectedTienda, setSelectedTienda] = useState<string>('');
+  const [selectedTienda, setSelectedTienda] = useState<string>('all');
   const [fechaInicio, setFechaInicio] = useState<Date>(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   const [fechaFin, setFechaFin] = useState<Date>(new Date());
   const [reporteVentasDiarias, setReporteVentasDiarias] = useState<ReporteVentasDiarias[]>([]);
@@ -47,15 +47,6 @@ export const ReportesPage: React.FC = () => {
   const [totalIngresos, setTotalIngresos] = useState(0);
   const [totalVentas, setTotalVentas] = useState(0);
   const [promedioVenta, setPromedioVenta] = useState(0);
-
-  useEffect(() => {
-    loadTiendas();
-    loadVentas();
-  }, []);
-
-  useEffect(() => {
-    generateReports();
-  }, [ventas, selectedTienda, fechaInicio, fechaFin]);
 
   const loadTiendas = () => {
     setTiendas(TiendaService.getAll());
@@ -84,7 +75,7 @@ export const ReportesPage: React.FC = () => {
     let ventasFiltradas = ventas.filter(venta => {
       const fechaVenta = new Date(venta.fecha_venta);
       const dentroRangoFecha = fechaVenta >= fechaInicio && fechaVenta <= fechaFin;
-      const dentroTienda = !selectedTienda || venta.tienda_id === selectedTienda;
+      const dentroTienda = selectedTienda == 'all' || venta.tienda_id === selectedTienda;
       return dentroRangoFecha && dentroTienda;
     });
 
@@ -145,7 +136,7 @@ export const ReportesPage: React.FC = () => {
     const ventasFiltradas = ventas.filter(venta => {
       const fechaVenta = new Date(venta.fecha_venta);
       const dentroRangoFecha = fechaVenta >= fechaInicio && fechaVenta <= fechaFin;
-      const dentroTienda = !selectedTienda || venta.tienda_id === selectedTienda;
+      const dentroTienda = selectedTienda == 'all' || venta.tienda_id === selectedTienda;
       return dentroRangoFecha && dentroTienda;
     });
 
@@ -172,6 +163,15 @@ export const ReportesPage: React.FC = () => {
   };
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
+  useEffect(() => {
+    loadTiendas();
+    loadVentas();
+  }, []);
+
+  useEffect(() => {
+    generateReports();
+  }, [ventas, selectedTienda, fechaInicio, fechaFin]);
 
   return (
     <div className="p-6 space-y-6">
@@ -202,7 +202,7 @@ export const ReportesPage: React.FC = () => {
                 <SelectValue placeholder="Todas las tiendas" />
               </SelectTrigger>
               <SelectContent className="">
-                <SelectItem value="" className="">Todas las tiendas</SelectItem>
+                <SelectItem value="all" className="">Todas las tiendas</SelectItem>
                 {tiendas.map(tienda => (
                   <SelectItem key={tienda.id} value={tienda.id} className="">
                     {tienda.nombre}
@@ -340,7 +340,7 @@ export const ReportesPage: React.FC = () => {
                 .filter(venta => {
                   const fechaVenta = new Date(venta.fecha_venta);
                   const dentroRangoFecha = fechaVenta >= fechaInicio && fechaVenta <= fechaFin;
-                  const dentroTienda = !selectedTienda || venta.tienda_id === selectedTienda;
+                  const dentroTienda = selectedTienda === 'all' || venta.tienda_id === selectedTienda;
                   return dentroRangoFecha && dentroTienda;
                 })
                 .slice(0, 10)

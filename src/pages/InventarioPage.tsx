@@ -18,7 +18,7 @@ export const InventarioPage: React.FC = () => {
   const [inventarios, setInventarios] = useState<Inventario[]>([]);
   const [productos, setProductos] = useState<Producto[]>([]);
   const [tiendas, setTiendas] = useState<Tienda[]>([]);
-  const [selectedTienda, setSelectedTienda] = useState<string>('');
+  const [selectedTienda, setSelectedTienda] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isMovimientoDialogOpen, setIsMovimientoDialogOpen] = useState(false);
   const [movimientoData, setMovimientoData] = useState({
@@ -30,30 +30,24 @@ export const InventarioPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadInventarios();
-    loadProductos();
-    loadTiendas();
-  }, []);
-
-  useEffect(() => {
-    loadInventarios();
-  }, [selectedTienda]);
-
   const loadInventarios = () => {
-    if (selectedTienda) {
+    if (selectedTienda && selectedTienda !== 'all') {
       setInventarios(InventarioService.getByTienda(selectedTienda));
+      console.log('Inventarios cargados por tienda:', inventarios , 'con filtro de tienda:', selectedTienda);
     } else {
       setInventarios(InventarioService.getAll());
+      console.log('Inventarios cargados por tienda:', inventarios , 'sin filtro de tienda');
     }
   };
 
   const loadProductos = () => {
     setProductos(ProductoService.getAll());
+    console.log('Productos cargados:', productos);
   };
 
   const loadTiendas = () => {
     setTiendas(TiendaService.getAll());
+    console.log('Tiendas cargadas:', tiendas);
   };
 
   const getProductoNombre = (productoId: string) => {
@@ -136,6 +130,16 @@ export const InventarioPage: React.FC = () => {
   const inventarioConProducto = getInventarioConProducto();
   const productosBajoStock = getProductosBajoStock();
 
+  useEffect(() => {
+    loadInventarios();
+    loadProductos();
+    loadTiendas();
+  }, []);
+
+  useEffect(() => {
+    loadInventarios();
+  }, [selectedTienda]);
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -169,7 +173,7 @@ export const InventarioPage: React.FC = () => {
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccione una tienda" />
                     </SelectTrigger>
-                    <SelectContent className="">
+                    <SelectContent value="all" className="">
                       {tiendas.map((tienda) => (
                         <SelectItem key={tienda.id} value={tienda.id} className="">
                           {tienda.nombre}
@@ -281,11 +285,11 @@ export const InventarioPage: React.FC = () => {
             </div>
             <div className="w-48">
               <Select value={selectedTienda} onValueChange={setSelectedTienda}>
-                <SelectTrigger>
+                <SelectTrigger className="">
                   <SelectValue placeholder="Todas las tiendas" />
                 </SelectTrigger>
                 <SelectContent className="">
-                  <SelectItem value="" className="">Todas las tiendas</SelectItem>
+                  <SelectItem value="all" className="">Todas las tiendas</SelectItem>
                   {tiendas.map((tienda) => (
                     <SelectItem key={tienda.id} value={tienda.id} className="">
                       {tienda.nombre}

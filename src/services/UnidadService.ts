@@ -1,4 +1,4 @@
-import { getLocalStorageData, updateLocalStorageData } from "../data/localStorage";
+import { getLocalStorageData, setLocalStorageData } from "../data/localStorage";
 import { Unidad } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -17,7 +17,7 @@ export const UnidadService = {
     const data = getLocalStorageData();
     const newUnidad: Unidad = { id: uuidv4(), ...unidad };
     data.unidades.push(newUnidad);
-    updateLocalStorageData(data);
+    setLocalStorageData(data);
     return newUnidad;
   },
 
@@ -25,8 +25,8 @@ export const UnidadService = {
     const data = getLocalStorageData();
     const index = data.unidades.findIndex((unidad) => unidad.id === id);
     if (index > -1) {
-      data.unidades[index] = { ...data.unidades[index], ...updatedFields };
-      updateLocalStorageData(data);
+       data.unidades[index] = { ...data.unidades[index], ...updatedFields };
+    setLocalStorageData(data);
       return data.unidades[index];
     }
     return undefined;
@@ -37,7 +37,7 @@ export const UnidadService = {
     const initialLength = data.unidades.length;
     data.unidades = data.unidades.filter((unidad) => unidad.id !== id);
     if (data.unidades.length < initialLength) {
-      updateLocalStorageData(data);
+      setLocalStorageData(data);
       return true;
     }
     return false;

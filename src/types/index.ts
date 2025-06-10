@@ -160,3 +160,16 @@ export interface DataStore {
   proveedores_productos: ProveedorProducto[];
 }
 
+
+export enum TipoPagoEnum {
+  Efectivo = 'Efectivo',
+  Transferencia = 'Transferencia',
+  Tarjeta = 'Tarjeta',
+}
+
+export enum EstadoVentaEnum {
+  Pendiente = 'Pendiente',
+  Completada = 'Completada',
+  Cancelada = 'Cancelada',
+}
+

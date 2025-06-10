@@ -3,8 +3,8 @@ import { ProductoService } from '../services/ProductoService';
 import { InventarioService } from '../services/InventarioService';
 import { VentaService } from '../services/VentaService';
 import { TiendaService } from '../services/TiendaService';
-import { ClienteService } from '../services/PersonaService';
-import { Producto, DetalleVenta, TipoPagoEnum, Venta, Cliente, Tienda } from '../types';
+import { PersonaService } from '../services/PersonaService';
+import { Producto, DetalleVenta, TipoPagoEnum, Venta, Persona, Tienda } from '../types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,7 +27,7 @@ export const POSPage: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<TipoPagoEnum>(TipoPagoEnum.Efectivo);
-  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [clientes, setClientes] = useState<Persona[]>([]);
   const [selectedCliente, setSelectedCliente] = useState<string | null>(null);
   const [tiendas, setTiendas] = useState<Tienda[]>([]);
   const [selectedTienda, setSelectedTienda] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export const POSPage: React.FC = () => {
   };
 
   const loadClientes = () => {
-    setClientes(ClienteService.getAllClientes());
+    setClientes(PersonaService.getClientes());
   };
 
   const loadTiendas = () => {

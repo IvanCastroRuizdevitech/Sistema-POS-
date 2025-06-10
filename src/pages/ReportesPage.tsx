@@ -16,9 +16,11 @@ import { TrendingUp, DollarSign, ShoppingCart, Users, Package, Calendar, FileTex
 import { useAuth } from '../context/AuthContext';
 
 interface VentaReporte extends Venta {
+  fecha_venta: string;
   cliente_nombre?: string;
   tienda_nombre?: string;
   empleado_nombre?: string;
+  tipo_pago: string;
 }
 
 interface ReporteVentasDiarias {
@@ -68,9 +70,11 @@ export const ReportesPage: React.FC = () => {
       
       return {
         ...venta,
+        fecha_venta: venta.fecha instanceof Date ? venta.fecha.toISOString() : venta.fecha || '',
         cliente_nombre: cliente ? cliente.nombre : 'Consumidor Final',
         tienda_nombre: tienda?.nombre || 'Tienda Desconocida',
         empleado_nombre: empleado ? empleado.nombre : 'Empleado Desconocido',
+        tipo_pago: venta.metodo_pago_id ?? 'Desconocido',
       };
     });
     setVentas(ventasConInfo);
@@ -173,7 +177,12 @@ export const ReportesPage: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Reportes y Analytics</h1>
-        <Button onClick={exportToCSV} className="flex items-center gap-2">
+        <Button
+          onClick={exportToCSV}
+          className="flex items-center gap-2"
+          variant="default"
+          size="default"
+        >
           <Download className="h-4 w-4" />
           Exportar CSV
         </Button>

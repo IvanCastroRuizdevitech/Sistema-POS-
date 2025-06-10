@@ -19,7 +19,7 @@ export class ProductoService {
 
   static getCategorias(): string[] {
     const data = getLocalStorageData();
-    const categorias = [...new Set(data.productos.map(p => p.categoria))];
+    const categorias = Array.from(new Set(data.productos.map(p => p.categoria)));
     return categorias.filter(c => c && c.trim() !== '');
   }
 

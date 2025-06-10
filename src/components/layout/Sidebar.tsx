@@ -14,7 +14,8 @@ import {
   Settings,
   LogOut,
   UserCheck,
-  Truck
+  Truck,
+  Boxes
 } from 'lucide-react';
 
 const navigation = [
@@ -24,7 +25,8 @@ const navigation = [
   { name: 'Empleados', href: '/empleados', icon: UserCheck, permission: 'all' },
   { name: 'Clientes', href: '/clientes', icon: Users, permission: null },
   { name: 'Proveedores', href: '/proveedores', icon: Truck, permission: 'all' },
-  { name: 'Inventario', href: '/inventario', icon: Package, permission: null },
+  { name: 'Productos', href: '/productos', icon: Package, permission: null },
+  { name: 'Inventario', href: '/inventario', icon: Boxes, permission: null },
   { name: 'Ventas', href: '/ventas', icon: ShoppingCart, permission: null },
   { name: 'Reportes', href: '/reportes', icon: BarChart3, permission: null },
   { name: 'Configuración', href: '/configuracion', icon: Settings, permission: 'all' },

@@ -9,6 +9,8 @@ import { UnauthorizedPage } from './pages/UnauthorizedPage';
 import { CompañiasPage } from './pages/CompañiasPage';
 import { TiendasPage } from './pages/TiendasPage';
 import { ClientesPage } from './pages/ClientesPage';
+import { ProductosPage } from './pages/ProductosPage';
+import { InventarioPage } from './pages/InventarioPage';
 import { initializeData } from './data/localStorage';
 import { initializeDemoUsers } from './utils/initializeDemo';
 import './App.css';
@@ -63,6 +65,26 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <ClientesPage />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/productos" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ProductosPage />
+                  </Layout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/inventario" 
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <InventarioPage />
                   </Layout>
                 </ProtectedRoute>
               } 

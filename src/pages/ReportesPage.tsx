@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { VentaService } from '../services/VentaService';
 import { ProductoService } from '../services/ProductoService';
 import { TiendaService } from '../services/TiendaService';
-import { ClienteService } from '../services/PersonaService';
-import { Venta, DetalleVenta, Producto, Tienda, Cliente } from '../types';
+import { PersonaService } from '../services/PersonaService';
+import { Venta, DetalleVenta, Producto, Tienda, Persona } from '../types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -62,15 +62,15 @@ export const ReportesPage: React.FC = () => {
   const loadVentas = () => {
     const allVentas = VentaService.getAll();
     const ventasConInfo = allVentas.map(venta => {
-      const cliente = venta.cliente_id ? ClienteService.getById(venta.cliente_id) : null;
+      const cliente = venta.cliente_id ? PersonaService.getById(venta.cliente_id) : null;
       const tienda = TiendaService.getById(venta.tienda_id);
-      const empleado = ClienteService.getById(venta.empleado_id);
+      const empleado = PersonaService.getById(venta.vendedor_id);
       
       return {
         ...venta,
-        cliente_nombre: cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Consumidor Final',
+        cliente_nombre: cliente ? cliente.nombre : 'Consumidor Final',
         tienda_nombre: tienda?.nombre || 'Tienda Desconocida',
-        empleado_nombre: empleado ? `${empleado.nombre} ${empleado.apellido}` : 'Empleado Desconocido',
+        empleado_nombre: empleado ? empleado.nombre : 'Empleado Desconocido',
       };
     });
     setVentas(ventasConInfo);

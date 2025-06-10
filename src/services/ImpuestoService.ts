@@ -1,4 +1,4 @@
-import { getLocalStorageData, updateLocalStorageData } from "../data/localStorage";
+import { getLocalStorageData, setLocalStorageData } from "../data/localStorage";
 import { Impuesto } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -17,7 +17,7 @@ export const ImpuestoService = {
     const data = getLocalStorageData();
     const newImpuesto: Impuesto = { id: uuidv4(), ...impuesto };
     data.impuestos.push(newImpuesto);
-    updateLocalStorageData(data);
+    setLocalStorageData(data);
     return newImpuesto;
   },
 
@@ -25,8 +25,8 @@ export const ImpuestoService = {
     const data = getLocalStorageData();
     const index = data.impuestos.findIndex((impuesto) => impuesto.id === id);
     if (index > -1) {
-      data.impuestos[index] = { ...data.impuestos[index], ...updatedFields };
-      updateLocalStorageData(data);
+       data.impuestos[index] = { ...data.impuestos[index], ...updatedFields };
+    setLocalStorageData(data);
       return data.impuestos[index];
     }
     return undefined;
@@ -37,7 +37,7 @@ export const ImpuestoService = {
     const initialLength = data.impuestos.length;
     data.impuestos = data.impuestos.filter((impuesto) => impuesto.id !== id);
     if (data.impuestos.length < initialLength) {
-      updateLocalStorageData(data);
+      setLocalStorageData(data);
       return true;
     }
     return false;

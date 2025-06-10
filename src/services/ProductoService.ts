@@ -4,6 +4,7 @@ import { Producto, Inventario, Kardex, TipoMovimientoEnum } from '../types';
 export class ProductoService {
   static getAll(): Producto[] {
     const data = getLocalStorageData();
+    console.log('Productos obtenidos:', data.productos);
     return data.productos;
   }
 
@@ -50,7 +51,7 @@ export class ProductoService {
     if (index === -1) return false;
 
     // Check if product is referenced in inventory or sales
-    const hasInventory = data.inventario.some(i => i.producto_id === id);
+    const hasInventory = data.inventarios.some(i => i.producto_id === id);
     const hasSales = data.detalles_ventas.some(dv => dv.producto_id === id);
     
     if (hasInventory || hasSales) {

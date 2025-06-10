@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 export const UnidadService = {
   getAll: (): Unidad[] => {
     const data = getLocalStorageData();
+    console.log("Unidades obtenidas:", data.unidades);
     return data.unidades;
   },
 

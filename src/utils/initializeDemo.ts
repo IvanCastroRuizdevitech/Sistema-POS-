@@ -6,8 +6,8 @@ export const initializeDemoUsers = () => {
   const data = getLocalStorageData();
   
   // Check if demo users already exist
-  const adminExists = data.usuarios.some(u => u.correo === 'admin@tienda.com');
-  const vendedorExists = data.usuarios.some(u => u.correo === 'vendedor@tienda.com');
+  const adminExists = data.usuarios.some(u => u.email === 'admin@tienda.com');
+  const vendedorExists = data.usuarios.some(u => u.email === 'vendedor@tienda.com');
   
   if (!adminExists || !vendedorExists) {
     // Create demo personas
@@ -35,8 +35,8 @@ export const initializeDemoUsers = () => {
     const adminUser: Usuario = {
       id: generateId(),
       persona_id: adminPersona.id,
-      correo: 'admin@tienda.com',
-      contraseña: 'admin123',
+      email: 'admin@tienda.com',
+      password: 'admin123',
       rol_id: '1', // Administrador
       activo: true,
       fecha_creacion: new Date(),
@@ -45,8 +45,8 @@ export const initializeDemoUsers = () => {
     const vendedorUser: Usuario = {
       id: generateId(),
       persona_id: vendedorPersona.id,
-      correo: 'vendedor@tienda.com',
-      contraseña: 'vendedor123',
+      email: 'vendedor@tienda.com',
+      password: 'vendedor123',
       rol_id: '2', // Vendedor
       activo: true,
       fecha_creacion: new Date(),

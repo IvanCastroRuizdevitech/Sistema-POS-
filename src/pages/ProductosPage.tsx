@@ -22,7 +22,7 @@ export const ProductosPage: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProducto, setEditingProducto] = useState<Producto | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategoria, setSelectedCategoria] = useState<string>('');
+  const [selectedCategoria, setSelectedCategoria] = useState<string>('all');
   const [formData, setFormData] = useState({
     nombre: '',
     categoria: '',
@@ -33,24 +33,21 @@ export const ProductosPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log("Loading productos...");
-    loadProductos();
-    loadUnidades();
-    loadImpuestos();
-    loadCategorias();
-  }, []);
+
 
   const loadProductos = () => {
     setProductos(ProductoService.getAll());
+    console.log("Productos cargados:", productos);
   };
 
   const loadUnidades = () => {
     setUnidades(UnidadService.getAll());
+    console.log("Unidades cargadas:", unidades);
   };
 
   const loadImpuestos = () => {
     setImpuestos(ImpuestoService.getAll());
+    console.log("Impuestos cargados:", impuestos);
   };
 
   const loadCategorias = () => {
@@ -69,8 +66,8 @@ export const ProductosPage: React.FC = () => {
 
   const filteredProductos = productos.filter(producto => {
     const matchesSearch = producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         producto.categoria.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategoria = selectedCategoria === '' || producto.categoria === selectedCategoria;
+      producto.categoria.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategoria = selectedCategoria === 'all' || producto.categoria === selectedCategoria;
     return matchesSearch && matchesCategoria;
   });
 
@@ -90,7 +87,7 @@ export const ProductosPage: React.FC = () => {
       } else {
         ProductoService.create(productoData);
       }
-      
+
       loadProductos();
       loadCategorias();
       setIsDialogOpen(false);
@@ -143,6 +140,18 @@ export const ProductosPage: React.FC = () => {
     resetForm();
   };
 
+
+  const loadData = () => {
+    loadProductos();
+    loadUnidades();
+    loadImpuestos();
+    loadCategorias();
+  }
+
+  useEffect(() => {
+    loadData();
+  }, [/* unidades, impuestos, productos, categorias */]);
+
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -152,19 +161,19 @@ export const ProductosPage: React.FC = () => {
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setIsDialogOpen(true)}>
+            <Button onClick={() => setIsDialogOpen(true)} className="" variant="outline" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Producto
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
+            <DialogHeader className="">
+              <DialogTitle className="">
                 {editingProducto ? 'Editar Producto' : 'Nuevo Producto'}
               </DialogTitle>
-              <DialogDescription>
-                {editingProducto 
-                  ? 'Modifique los datos del producto' 
+              <DialogDescription className="">
+                {editingProducto
+                  ? 'Modifique los datos del producto'
                   : 'Complete los datos para crear un nuevo producto'
                 }
               </DialogDescription>
@@ -172,23 +181,27 @@ export const ProductosPage: React.FC = () => {
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="nombre">Nombre *</Label>
+                  <Label htmlFor="nombre" className="">Nombre *</Label>
                   <Input
                     id="nombre"
                     value={formData.nombre}
                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                     placeholder="Nombre del producto"
+                    className=""
+                    type=""
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="categoria">Categoría *</Label>
+                  <Label htmlFor="categoria" className="">Categoría *</Label>
                   <Input
                     id="categoria"
                     value={formData.categoria}
                     onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
                     placeholder="Categoría del producto"
                     list="categorias"
+                    className=""
+                    type=""
                     required
                   />
                   <datalist id="categorias">
@@ -198,7 +211,7 @@ export const ProductosPage: React.FC = () => {
                   </datalist>
                 </div>
                 <div>
-                  <Label htmlFor="precio">Precio *</Label>
+                  <Label htmlFor="precio" className="">Precio *</Label>
                   <Input
                     id="precio"
                     type="number"
@@ -208,16 +221,17 @@ export const ProductosPage: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, precio: e.target.value })}
                     placeholder="0.00"
                     required
+                    className=""
                   />
                 </div>
                 <div>
-                  <Label htmlFor="unidad_id">Unidad *</Label>
+                  <Label htmlFor="unidad_id" className="">Unidad *</Label>
                   <Select
                     value={formData.unidad_id}
                     onValueChange={(value) => setFormData({ ...formData, unidad_id: value })}
                     required
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="">
                       <SelectValue placeholder="Seleccione una unidad" />
                     </SelectTrigger>
                     <SelectContent className="">
@@ -230,13 +244,13 @@ export const ProductosPage: React.FC = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="impuesto_id">Impuesto *</Label>
+                  <Label htmlFor="impuesto_id" className="">Impuesto *</Label>
                   <Select
                     value={formData.impuesto_id}
                     onValueChange={(value) => setFormData({ ...formData, impuesto_id: value })}
                     required
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="">
                       <SelectValue placeholder="Seleccione un impuesto" />
                     </SelectTrigger>
                     <SelectContent className="">
@@ -249,16 +263,22 @@ export const ProductosPage: React.FC = () => {
                   </Select>
                 </div>
                 {error && (
-                  <Alert variant="destructive">
+                  <Alert variant="destructive" className="">
                     <AlertDescription className="">{error}</AlertDescription>
                   </Alert>
                 )}
               </div>
               <DialogFooter className="mt-6">
-                <Button type="button" variant="outline" onClick={handleDialogClose}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleDialogClose}
+                  className=""
+                  size="sm"
+                >
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={loading}>
+                <Button type="submit" disabled={loading} variant="outline" className="" size="sm">
                   {loading ? 'Guardando...' : (editingProducto ? 'Actualizar' : 'Crear')}
                 </Button>
               </DialogFooter>
@@ -279,16 +299,18 @@ export const ProductosPage: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
+                  size="sm"
+                  type=""
                 />
               </div>
             </div>
             <div className="w-48">
               <Select value={selectedCategoria} onValueChange={setSelectedCategoria}>
-                <SelectTrigger>
+                <SelectTrigger className="">
                   <SelectValue placeholder="Todas las categorías" />
                 </SelectTrigger>
                 <SelectContent className="">
-                  <SelectItem value="" className="">Todas las categorías</SelectItem>
+                  <SelectItem value="all" className="">Todas las categorías</SelectItem>
                   {categorias.map((categoria, index) => (
                     <SelectItem key={index} value={categoria} className="">
                       {categoria}
@@ -301,17 +323,17 @@ export const ProductosPage: React.FC = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="">
         <CardHeader className="">
           <CardTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
             Lista de Productos
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="">
             {filteredProductos.length} producto(s) {searchTerm || selectedCategoria ? 'encontrado(s)' : 'registrado(s)'}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="">
           {filteredProductos.length === 0 ? (
             <div className="text-center py-8">
               <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -323,33 +345,35 @@ export const ProductosPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>Categoría</TableHead>
-                  <TableHead>Precio</TableHead>
-                  <TableHead>Unidad</TableHead>
-                  <TableHead>Impuesto</TableHead>
+            <Table className="">
+              <TableHeader className="">
+                <TableRow className="">
+                  <TableHead className="">Nombre</TableHead>
+                  <TableHead className="">Categoría</TableHead>
+                  <TableHead className="">Categoría</TableHead>
+                  <TableHead className="">Precio</TableHead>
+                  <TableHead className="">Unidad</TableHead>
+                  <TableHead className="">Impuesto</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="">
                 {filteredProductos.map((producto) => (
-                  <TableRow key={producto.id}>
+                  <TableRow key={producto.id} className="">
                     <TableCell className="font-medium">{producto.nombre}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{producto.categoria}</Badge>
+                    <TableCell className="">
+                      <Badge variant="outline" className="">{producto.categoria}</Badge>
                     </TableCell>
-                    <TableCell>${producto.precio.toFixed(2)}</TableCell>
-                    <TableCell>{getUnidadNombre(producto.unidad_id)}</TableCell>
-                    <TableCell>{getImpuestoNombre(producto.impuesto_id)}</TableCell>
+                    <TableCell className="">${producto.precio.toFixed(2)}</TableCell>
+                    <TableCell className="">{getUnidadNombre(producto.unidad_id)}</TableCell>
+                    <TableCell className="">{getImpuestoNombre(producto.impuesto_id)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleEdit(producto)}
+                          className=""
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -357,6 +381,7 @@ export const ProductosPage: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => handleDelete(producto.id)}
+                          className=""
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

@@ -67,8 +67,8 @@ const generateSampleData = (): DataStore => {
 
   // Usuarios
   data.usuarios.push(
-    { id: uuidv4(), persona_id: adminPersonaId, email: 'admin@tienda.com', password: 'admin123', rol_id: '1', fecha_creacion: new Date() },
-    { id: uuidv4(), persona_id: vendedorPersonaId, email: 'vendedor@tienda.com', password: 'vendedor123', rol_id: '2', fecha_creacion: new Date() },
+    { id: uuidv4(), persona_id: adminPersonaId, email: 'admin@tienda.com', password: 'admin123', rol_id: '1', fecha_creacion: new Date(), activo: true },
+    { id: uuidv4(), persona_id: vendedorPersonaId, email: 'vendedor@tienda.com', password: 'vendedor123', rol_id: '2', fecha_creacion: new Date(), activo: true },
   );
 
   // Compañías y Tiendas
@@ -142,6 +142,7 @@ const generateSampleData = (): DataStore => {
 // Function to simulate localStorage operations
 export const getLocalStorageData = (): DataStore => {
   const data = localStorage.getItem('pos_data');
+  //console.log('Data from localStorage:', data); // Debugging line to check localStorage content
   if (data) {
     const parsedData = JSON.parse(data);
     // Convert date strings back to Date objects
@@ -161,6 +162,11 @@ export const getLocalStorageData = (): DataStore => {
       ...kardex,
       fecha: new Date(kardex.fecha),
     })) || [];
+    parsedData.inventarios = parsedData.inventarios?.map((inventario: any) => ({
+      ...inventario,
+     fecha: new Date(inventario.fecha), // Ensure saldo is a number
+    })) || [];
+    console.log('Data from localStorage parsedData:', parsedData); // Debugging line to check localStorage content
     return parsedData;
   }
   return generateSampleData(); // Initialize with sample data if no data exists

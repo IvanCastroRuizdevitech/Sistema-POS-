@@ -35,8 +35,8 @@ export interface Rol {
 export interface Usuario {
   id: string;
   persona_id: string;
-  correo: string;
-  contraseña: string;
+  email: string;
+  password: string;
   rol_id: string;
   activo: boolean;
   fecha_creacion: Date;
@@ -45,7 +45,7 @@ export interface Usuario {
 export interface Compañia {
   id: string;
   nombre: string;
-  NIT?: string;
+  nit?: string;
   direccion?: string;
 }
 
@@ -53,7 +53,7 @@ export interface Tienda {
   id: string;
   nombre: string;
   direccion?: string;
-  compañia_id: string;
+  compania_id: string;
 }
 
 export interface Unidad {

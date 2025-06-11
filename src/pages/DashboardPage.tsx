@@ -180,7 +180,7 @@ export const DashboardPage: React.FC = () => {
                 <Mail className="h-4 w-4 text-gray-500" />
                 <div>
                   <p className="text-sm text-gray-500">Correo</p>
-                  <p className="font-medium">{user?.correo}</p>
+                  <p className="font-medium">{user?.email}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">

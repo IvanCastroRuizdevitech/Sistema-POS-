@@ -111,5 +111,17 @@ export class VentaService {
     });
     return ventasMes.reduce((sum, venta) => sum + venta.total, 0);
   }
+
+  static getAllDetalles():DetalleVenta[]  {
+    const detallesStr = localStorage.getItem('detalles_ventas');
+    if (!detallesStr) return [];
+    try {
+      return JSON.parse(detallesStr);
+    } catch (error) {
+      console.error('Error al cargar detalles de ventas:', error);
+      return [];
+    }
+  }
+
 }
 

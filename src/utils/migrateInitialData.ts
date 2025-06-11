@@ -11,7 +11,8 @@ import {
   Gasto, 
   DetalleGasto,
   TipoMovimientoEnum,
-  MetodoPago
+  MetodoPago,
+  EstadoVentaEnum
 } from '../types';
 
 export const migrateInitialData = () => {
@@ -243,6 +244,7 @@ export const migrateInitialData = () => {
       impuestos: 0,
       total: 0,
       fecha: new Date(Date.now() - Math.random() * 15 * 24 * 60 * 60 * 1000), // Últimos 15 días
+      estado: EstadoVentaEnum.Pendiente, // O usa EstadoVentaEnum.Pendiente si está importado
     };
     
     // Crear detalles de venta (1-4 productos por venta)

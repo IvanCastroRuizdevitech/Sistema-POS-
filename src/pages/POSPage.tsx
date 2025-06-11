@@ -4,7 +4,7 @@ import { InventarioService } from '../services/InventarioService';
 import { VentaService } from '../services/VentaService';
 import { TiendaService } from '../services/TiendaService';
 import { PersonaService } from '../services/PersonaService';
-import { Producto, DetalleVenta, Venta, Persona, Tienda } from '../types';
+import { Producto, DetalleVenta, Venta, Persona, Tienda, TipoPagoEnum } from '../types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,11 +31,11 @@ export const POSPage: React.FC = () => {
   const [impuestos, setImpuestos] = useState(0);
   const [total, setTotal] = useState(0);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('1');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<TipoPagoEnum>(TipoPagoEnum.Efectivo);
   const [clientes, setClientes] = useState<Persona[]>([]);
   const [selectedCliente, setSelectedCliente] = useState<string>('');
   const [tiendas, setTiendas] = useState<Tienda[]>([]);
-  const [selectedTienda, setSelectedTienda] = useState<string>('');
+  const [selectedTienda, setSelectedTienda] = useState<string>('all');
   const [error, setError] = useState('');
   const [ventaExitosa, setVentaExitosa] = useState(false);
   const [reciboVenta, setReciboVenta] = useState<Venta | null>(null);
@@ -62,7 +62,7 @@ export const POSPage: React.FC = () => {
     setTiendas(TiendaService.getAll());
   };
 
-  const categories = [...new Set(productos.map(p => p.categoria))];
+  const categories = Array.from(new Set(productos.map(p => p.categoria)));
 
   const filteredProductos = productos.filter(producto => {
     const matchesSearch = producto.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -161,12 +161,13 @@ export const POSPage: React.FC = () => {
         subtotal: item.precio * item.cantidad,
       }));
 
-      const newVenta: Omit<Venta, 'id' | 'fecha'> = {
+      const newVenta: Omit<Venta, 'id' | 'fecha_venta' | 'estado'>= {
         cliente_id: selectedCliente || undefined,
         vendedor_id: persona?.id || 'unknown',
         tienda_id: selectedTienda,
         metodo_pago_id: selectedPaymentMethod,
         subtotal: subtotal,
+        fecha: new Date(),
         impuestos: impuestos,
         total: total,
       };
@@ -474,34 +475,19 @@ export const POSPage: React.FC = () => {
             {/* Método de Pago */}
             <div>
               <h3 className="text-lg font-semibold mb-3">Método de Pago:</h3>
-              <Select value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
-                <SelectTrigger className="">
+              <Select value={selectedPaymentMethod} onValueChange={(value: TipoPagoEnum) => setSelectedPaymentMethod(value)}>
+                <SelectTrigger>
                   <SelectValue placeholder="Seleccione método de pago" />
                 </SelectTrigger>
-                <SelectContent className="">
-                  <SelectItem value="1" className="">
-                    <div className="flex items-center gap-2">
-                      <Banknote className="h-4 w-4" /> 
-                      Efectivo
-                    </div>
+                <SelectContent>
+                  <SelectItem value={TipoPagoEnum.Efectivo}>
+                    <div className="flex items-center gap-2"><Banknote className="h-4 w-4" /> Efectivo</div>
                   </SelectItem>
-                  <SelectItem value="2" className="">
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4" /> 
-                      Transferencia
-                    </div>
+                  <SelectItem value={TipoPagoEnum.Transferencia}>
+                    <div className="flex items-center gap-2"><CreditCard className="h-4 w-4" /> Transferencia</div>
                   </SelectItem>
-                  <SelectItem value="3" className="">
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4" /> 
-                      Tarjeta de Crédito
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="4" className="">
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4" /> 
-                      Tarjeta de Débito
-                    </div>
+                  <SelectItem value={TipoPagoEnum.Tarjeta}>
+                    <div className="flex items-center gap-2"><CreditCard className="h-4 w-4" /> Tarjeta</div>
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -515,7 +501,7 @@ export const POSPage: React.FC = () => {
                   <SelectValue placeholder="Consumidor Final" />
                 </SelectTrigger>
                 <SelectContent className="">
-                  <SelectItem value="" className="">Consumidor Final</SelectItem>
+                  <SelectItem value="all" className="">Consumidor Final</SelectItem>
                   {clientes.map(cliente => (
                     <SelectItem key={cliente.id} value={cliente.id} className="">
                       {cliente.nombre} ({cliente.numero_identificacion})

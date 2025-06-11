@@ -111,6 +111,7 @@ export interface Venta {
   impuestos: number;
   total: number;
   metodo_pago_id: string;
+  estado: EstadoVentaEnum;
 }
 
 export interface DetalleVenta {

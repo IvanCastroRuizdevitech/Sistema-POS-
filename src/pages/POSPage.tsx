@@ -149,9 +149,12 @@ export const POSPage: React.FC = () => {
 
       const newVenta: Omit<Venta, 'id' | 'fecha_venta' | 'total' | 'estado'> = {
         cliente_id: selectedCliente || null,
-        empleado_id: persona?.id || 'unknown',
+        vendedor_id: persona?.id || 'unknown',
         tienda_id: selectedTienda,
-        tipo_pago: selectedPaymentMethod,
+        metodo_pago_id: selectedPaymentMethod,
+        subtotal: total,
+        fecha: new Date(),
+        impuestos: 0, // Ajusta este valor si tienes lógica de impuestos
       };
 
       const ventaRegistrada = VentaService.create(newVenta, detallesVenta);
@@ -176,13 +179,18 @@ export const POSPage: React.FC = () => {
   const getClienteNombre = (clienteId: string | null) => {
     if (!clienteId) return 'Consumidor Final';
     const cliente = clientes.find(c => c.id === clienteId);
-    return cliente ? `${cliente.nombre} ${cliente.apellido}` : 'Consumidor Final';
+    return cliente ? `${cliente.nombre}` : 'Consumidor Final';
   };
 
   const getProductoNombre = (productoId: string) => {
     const producto = ProductoService.getById(productoId);
     return producto?.nombre || 'Producto Desconocido';
   };
+
+  const getTiendaNombre = (tienda_id: string): React.ReactNode =>  {
+    const tienda = tiendas.find(t => t.id === tienda_id);
+    return tienda ? tienda.nombre : 'Tienda Desconocida';
+  }
 
   return (
     <div className="flex h-full bg-gray-100">
@@ -352,15 +360,15 @@ export const POSPage: React.FC = () => {
 
             <div>
               <h3 className="text-lg font-semibold mb-2">Cliente:</h3>
-              <Select value={selectedCliente || ''} onValueChange={(value) => setSelectedCliente(value)}>
+              <Select value={selectedCliente || 'all'} onValueChange={(value) => setSelectedCliente(value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar Cliente (Opcional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Consumidor Final</SelectItem>
+                  <SelectItem value="all">Consumidor Final</SelectItem>
                   {clientes.map(cliente => (
                     <SelectItem key={cliente.id} value={cliente.id}>
-                      {cliente.nombre} {cliente.apellido} ({cliente.identificacion})
+                      {cliente.nombre} ({cliente.numero_identificacion})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -386,11 +394,11 @@ export const POSPage: React.FC = () => {
             <Card className="mt-4">
               <CardHeader>
                 <CardTitle>Recibo de Venta #{reciboVenta.id?.substring(0, 8)}</CardTitle>
-                <p className="text-sm text-gray-500">Fecha: {new Date(reciboVenta.fecha_venta).toLocaleString()}</p>
+                <p className="text-sm text-gray-500">Fecha: {new Date(reciboVenta.fecha).toLocaleString()}</p>
                 <p className="text-sm text-gray-500">Tienda: {getTiendaNombre(reciboVenta.tienda_id)}</p>
                 <p className="text-sm text-gray-500">Cliente: {getClienteNombre(reciboVenta.cliente_id)}</p>
-                <p className="text-sm text-gray-500">Vendedor: {persona?.nombre} {persona?.apellido}</p>
-                <p className="text-sm text-gray-500">Método de Pago: {reciboVenta.tipo_pago}</p>
+                <p className="text-sm text-gray-500">Vendedor: {persona?.nombre} </p>
+                <p className="text-sm text-gray-500">Método de Pago: {reciboVenta.metodo_pago_id}</p>
               </CardHeader>
               <CardContent>
                 <Table>

@@ -1,5 +1,5 @@
 import { getLocalStorageData, setLocalStorageData, generateId } from "../data/localStorage";
-import { Venta, DetalleVenta, TipoPagoEnum, EstadoVentaEnum } from "../types";
+import { Venta, DetalleVenta, TipoPagoEnum, EstadoVentaEnum, TipoMovimientoEnum } from "../types";
 import { InventarioService } from "./InventarioService";
 import { ProductoService } from "./ProductoService";
 
@@ -25,7 +25,7 @@ export class VentaService {
     const newVenta: Venta = {
       ...venta,
       id: generateId(),
-      fecha_venta: new Date().toISOString(),
+      fecha: new Date(),
       total: 0,
       estado: EstadoVentaEnum.Completada,
     };
@@ -97,13 +97,16 @@ export class VentaService {
   static getVentasByFecha(fecha: Date): Venta[] {
     const data = getLocalStorageData();
     const fechaString = fecha.toISOString().split("T")[0];
-    return data.ventas.filter(venta => venta.fecha_venta.startsWith(fechaString));
+    return data.ventas.filter(venta => {
+      const fechaVentaString = (venta.fecha instanceof Date ? venta.fecha : new Date(venta.fecha)).toISOString().split("T")[0];
+      return fechaVentaString === fechaString;
+    });
   }
 
   static getIngresosMensuales(year: number, month: number): number {
     const data = getLocalStorageData();
     const ventasMes = data.ventas.filter(venta => {
-      const ventaDate = new Date(venta.fecha_venta);
+      const ventaDate = new Date(venta.fecha);
       return ventaDate.getFullYear() === year && ventaDate.getMonth() === month - 1; // Month is 0-indexed
     });
     return ventasMes.reduce((sum, venta) => sum + venta.total, 0);

@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Plus, Edit, Trash2, Package, Search } from 'lucide-react';
 
 export const ProductosPage: React.FC = () => {
@@ -345,51 +346,51 @@ export const ProductosPage: React.FC = () => {
               </p>
             </div>
           ) : (
-            <Table className="">
-              <TableHeader className="">
-                <TableRow className="">
-                  <TableHead className="">Nombre</TableHead>
-                  <TableHead className="">Categoría</TableHead>
-                  <TableHead className="">Precio</TableHead>
-                  <TableHead className="">Unidad</TableHead>
-                  <TableHead className="">Impuesto</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="">
-                {filteredProductos.map((producto) => (
-                  <TableRow key={producto.id} className="">
-                    <TableCell className="font-medium">{producto.nombre}</TableCell>
-                    <TableCell className="">
-                      <Badge variant="outline" className="">{producto.categoria}</Badge>
-                    </TableCell>
-                    <TableCell className="">${producto.precio.toFixed(2)}</TableCell>
-                    <TableCell className="">{getUnidadNombre(producto.unidad_id)}</TableCell>
-                    <TableCell className="">{getImpuestoNombre(producto.impuesto_id)}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(producto)}
-                          className=""
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(producto.id)}
-                          className=""
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+            <ResponsiveTable>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[150px]">Nombre</TableHead>
+                    <TableHead className="min-w-[120px]">Categoría</TableHead>
+                    <TableHead className="min-w-[100px]">Precio</TableHead>
+                    <TableHead className="min-w-[100px]">Unidad</TableHead>
+                    <TableHead className="min-w-[120px]">Impuesto</TableHead>
+                    <TableHead className="text-right min-w-[120px]">Acciones</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredProductos.map((producto) => (
+                    <TableRow key={producto.id}>
+                      <TableCell className="font-medium">{producto.nombre}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{producto.categoria}</Badge>
+                      </TableCell>
+                      <TableCell>${producto.precio.toFixed(2)}</TableCell>
+                      <TableCell>{getUnidadNombre(producto.unidad_id)}</TableCell>
+                      <TableCell>{getImpuestoNombre(producto.impuesto_id)}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(producto)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(producto.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ResponsiveTable>
           )}
         </CardContent>
       </Card>

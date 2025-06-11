@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Plus, Package, AlertTriangle, TrendingUp, TrendingDown, Search } from 'lucide-react';
 
 export const InventarioPage: React.FC = () => {
@@ -320,46 +321,48 @@ export const InventarioPage: React.FC = () => {
               <p className="text-sm text-gray-400">Registre movimientos de entrada para comenzar</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Producto</TableHead>
-                  <TableHead>Categoría</TableHead>
-                  <TableHead>Tienda</TableHead>
-                  <TableHead>Stock</TableHead>
-                  <TableHead>Estado</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {inventarioConProducto.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">
-                      {getProductoNombre(item.producto_id)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">
-                        {getProductoCategoria(item.producto_id)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{getTiendaNombre(item.tienda_id)}</TableCell>
-                    <TableCell>
-                      <span className={`font-medium ${item.saldo <= 10 ? 'text-red-600' : item.saldo <= 20 ? 'text-yellow-600' : 'text-green-600'}`}>
-                        {item.saldo}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {item.saldo <= 10 ? (
-                        <Badge variant="destructive">Stock Bajo</Badge>
-                      ) : item.saldo <= 20 ? (
-                        <Badge variant="secondary">Stock Medio</Badge>
-                      ) : (
-                        <Badge variant="default">Stock Normal</Badge>
-                      )}
-                    </TableCell>
+            <ResponsiveTable>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="min-w-[150px]">Producto</TableHead>
+                    <TableHead className="min-w-[120px]">Categoría</TableHead>
+                    <TableHead className="min-w-[120px]">Tienda</TableHead>
+                    <TableHead className="min-w-[80px]">Stock</TableHead>
+                    <TableHead className="min-w-[120px]">Estado</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {inventarioConProducto.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell className="font-medium">
+                        {getProductoNombre(item.producto_id)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline">
+                          {getProductoCategoria(item.producto_id)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{getTiendaNombre(item.tienda_id)}</TableCell>
+                      <TableCell>
+                        <span className={`font-medium ${item.saldo <= 10 ? 'text-red-600' : item.saldo <= 20 ? 'text-yellow-600' : 'text-green-600'}`}>
+                          {item.saldo}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {item.saldo <= 10 ? (
+                          <Badge variant="destructive">Stock Bajo</Badge>
+                        ) : item.saldo <= 20 ? (
+                          <Badge variant="secondary">Stock Medio</Badge>
+                        ) : (
+                          <Badge variant="default">Stock Normal</Badge>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ResponsiveTable>
           )}
         </CardContent>
       </Card>

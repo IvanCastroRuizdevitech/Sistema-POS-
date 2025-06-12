@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Edit, Trash2, Building } from 'lucide-react';
+import { ResponsiveTable } from '@/components/ui/responsive-table';
+import { Plus, Edit, Trash2, Building, Loader2, AlertCircle } from 'lucide-react';
 
 export const CompañiasPage: React.FC = () => {
   const [compañias, setCompañias] = useState<Compañia[]>([]);
@@ -16,18 +17,30 @@ export const CompañiasPage: React.FC = () => {
   const [editingCompañia, setEditingCompañia] = useState<Compañia | null>(null);
   const [formData, setFormData] = useState({
     nombre: '',
-    NIT: '',
+    nit: '',
     direccion: '',
+    telefono: '',
+    email: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
     loadCompañias();
   }, []);
 
-  const loadCompañias = () => {
-    setCompañias(CompañiaService.getAll());
+  const loadCompañias = async () => {
+    try {
+      setPageLoading(true);
+      const data = await CompañiaService.getAll();
+      setCompañias(data);
+    } catch (err: any) {
+      console.error('Error loading companies:', err);
+      setError(err.message || 'Error al cargar las compañías');
+    } finally {
+      setPageLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,16 +50,17 @@ export const CompañiasPage: React.FC = () => {
 
     try {
       if (editingCompañia) {
-        CompañiaService.update(editingCompañia.id, formData);
+        await CompañiaService.update(editingCompañia.id, formData);
       } else {
-        CompañiaService.create(formData);
+        await CompañiaService.create(formData);
       }
       
-      loadCompañias();
+      await loadCompañias();
       setIsDialogOpen(false);
       resetForm();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al guardar la compañía');
+    } catch (err: any) {
+      console.error('Error saving company:', err);
+      setError(err.message || 'Error al guardar la compañía');
     } finally {
       setLoading(false);
     }
@@ -56,19 +70,23 @@ export const CompañiasPage: React.FC = () => {
     setEditingCompañia(compañia);
     setFormData({
       nombre: compañia.nombre,
-      NIT: compañia.NIT || '',
+      nit: compañia.nit || '',
       direccion: compañia.direccion || '',
+      telefono: compañia.telefono || '',
+      email: compañia.email || '',
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('¿Está seguro de que desea eliminar esta compañía?')) {
       try {
-        CompañiaService.delete(id);
-        loadCompañias();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al eliminar la compañía');
+        setError('');
+        await CompañiaService.delete(id);
+        await loadCompañias();
+      } catch (err: any) {
+        console.error('Error deleting company:', err);
+        setError(err.message || 'Error al eliminar la compañía');
       }
     }
   };
@@ -76,8 +94,10 @@ export const CompañiasPage: React.FC = () => {
   const resetForm = () => {
     setFormData({
       nombre: '',
-      NIT: '',
+      nit: '',
       direccion: '',
+      telefono: '',
+      email: '',
     });
     setEditingCompañia(null);
     setError('');
@@ -87,6 +107,19 @@ export const CompañiasPage: React.FC = () => {
     setIsDialogOpen(false);
     resetForm();
   };
+
+  if (pageLoading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex items-center space-x-2">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span>Cargando compañías...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6">
@@ -102,7 +135,7 @@ export const CompañiasPage: React.FC = () => {
               Nueva Compañía
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>
                 {editingCompañia ? 'Editar Compañía' : 'Nueva Compañía'}
@@ -124,38 +157,72 @@ export const CompañiasPage: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                     placeholder="Nombre de la compañía"
                     required
+                    disabled={loading}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="NIT">NIT</Label>
+                  <Label htmlFor="nit">NIT *</Label>
                   <Input
-                    id="NIT"
-                    value={formData.NIT}
-                    onChange={(e) => setFormData({ ...formData, NIT: e.target.value })}
+                    id="nit"
+                    value={formData.nit}
+                    onChange={(e) => setFormData({ ...formData, nit: e.target.value })}
                     placeholder="Número de Identificación Tributaria"
+                    required
+                    disabled={loading}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="direccion">Dirección</Label>
+                  <Label htmlFor="direccion">Dirección *</Label>
                   <Input
                     id="direccion"
                     value={formData.direccion}
                     onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
                     placeholder="Dirección de la compañía"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="telefono">Teléfono</Label>
+                  <Input
+                    id="telefono"
+                    value={formData.telefono}
+                    onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                    placeholder="Número de teléfono"
+                    disabled={loading}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="Correo electrónico"
+                    disabled={loading}
                   />
                 </div>
                 {error && (
                   <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="">{error}</AlertDescription>
                   </Alert>
                 )}
               </div>
               <DialogFooter className="mt-6">
-                <Button type="button" variant="outline" onClick={handleDialogClose}>
+                <Button type="button" variant="outline" onClick={handleDialogClose} disabled={loading}>
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={loading}>
-                  {loading ? 'Guardando...' : (editingCompañia ? 'Actualizar' : 'Crear')}
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Guardando...
+                    </>
+                  ) : (
+                    editingCompañia ? 'Actualizar' : 'Crear'
+                  )}
                 </Button>
               </DialogFooter>
             </form>
@@ -163,8 +230,15 @@ export const CompañiasPage: React.FC = () => {
         </Dialog>
       </div>
 
+      {error && !isDialogOpen && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription className="">{error}</AlertDescription>
+        </Alert>
+      )}
+
       <Card>
-        <CardHeader>
+        <CardHeader className="">
           <CardTitle className="flex items-center gap-2">
             <Building className="h-5 w-5" />
             Lista de Compañías
@@ -181,43 +255,51 @@ export const CompañiasPage: React.FC = () => {
               <p className="text-sm text-gray-400">Haga clic en "Nueva Compañía" para comenzar</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>NIT</TableHead>
-                  <TableHead>Dirección</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {compañias.map((compañia) => (
-                  <TableRow key={compañia.id}>
-                    <TableCell className="font-medium">{compañia.nombre}</TableCell>
-                    <TableCell>{compañia.NIT || '-'}</TableCell>
-                    <TableCell>{compañia.direccion || '-'}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleEdit(compañia)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDelete(compañia.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+            <ResponsiveTable>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>NIT</TableHead>
+                    <TableHead>Dirección</TableHead>
+                    <TableHead>Teléfono</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {compañias.map((compañia) => (
+                    <TableRow key={compañia.id}>
+                      <TableCell className="font-medium">{compañia.nombre}</TableCell>
+                      <TableCell>{compañia.nit || '-'}</TableCell>
+                      <TableCell>{compañia.direccion || '-'}</TableCell>
+                      <TableCell>{compañia.telefono || '-'}</TableCell>
+                      <TableCell>{compañia.email || '-'}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(compañia)}
+                            disabled={loading}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(compañia.id)}
+                            disabled={loading}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ResponsiveTable>
           )}
         </CardContent>
       </Card>

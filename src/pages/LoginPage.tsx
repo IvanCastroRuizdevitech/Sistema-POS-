@@ -18,11 +18,24 @@ export const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    e.stopPropagation(); // Prevent any form submission behavior
+    
     console.log('LoginPage: handleSubmit triggered'); // Debug log
+    console.log('LoginPage: Form data:', { correo, contraseña: '***' }); // Debug log
+    
+    if (loading) {
+      console.log('LoginPage: Already loading, ignoring submit');
+      return;
+    }
+    
+    setLoading(true);
 
     try {
+      console.log('LoginPage: Calling login function...'); // Debug log
       const success = await login(correo, contraseña);
+      
+      console.log('LoginPage: Login result:', success); // Debug log
+      
       if (success) {
         toast.success('¡Inicio de sesión exitoso!', {
           description: 'Redirigiendo al dashboard...',
@@ -34,9 +47,25 @@ export const LoginPage: React.FC = () => {
         });
       }
     } catch (err: any) {
-      console.error('Login error:', err);
-      toast.error('Error al iniciar sesión.', {
-        description: err.message || 'Intente nuevamente.',
+      console.error('LoginPage: Login error caught:', err);
+      console.error('LoginPage: Error message:', err.message);
+      console.error('LoginPage: Error response:', err.response);
+      
+      let errorMessage = 'Error al iniciar sesión.';
+      let errorDescription = 'Intente nuevamente.';
+      
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      if (err.response?.status === 401) {
+        errorDescription = 'Credenciales incorrectas. Verifique su correo y contraseña.';
+      }
+      
+      toast.error(errorMessage, {
+        description: errorDescription,
       });
     } finally {
       setLoading(false);
@@ -44,13 +73,23 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleDemoLogin = async (email: string, password: string) => {
+    console.log(`LoginPage: handleDemoLogin triggered for ${email}`); // Debug log
+    
+    if (loading) {
+      console.log('LoginPage: Already loading, ignoring demo login');
+      return;
+    }
+    
     setCorreo(email);
     setContraseña(password);
     setLoading(true);
-    console.log(`LoginPage: handleDemoLogin triggered for ${email}`); // Debug log
 
     try {
+      console.log('LoginPage: Calling login function for demo...'); // Debug log
       const success = await login(email, password);
+      
+      console.log('LoginPage: Demo login result:', success); // Debug log
+      
       if (success) {
         toast.success('¡Inicio de sesión de demo exitoso!', {
           description: 'Redirigiendo al dashboard...',
@@ -62,9 +101,25 @@ export const LoginPage: React.FC = () => {
         });
       }
     } catch (err: any) {
-      console.error('Demo login error:', err);
-      toast.error('Error al iniciar sesión de demo.', {
-        description: err.message || 'Intente nuevamente.',
+      console.error('LoginPage: Demo login error caught:', err);
+      console.error('LoginPage: Error message:', err.message);
+      console.error('LoginPage: Error response:', err.response);
+      
+      let errorMessage = 'Error al iniciar sesión de demo.';
+      let errorDescription = 'Intente nuevamente.';
+      
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      if (err.response?.status === 401) {
+        errorDescription = 'Credenciales de demo incorrectas. Verifique que los usuarios existan en la base de datos.';
+      }
+      
+      toast.error(errorMessage, {
+        description: errorDescription,
       });
     } finally {
       setLoading(false);
@@ -169,6 +224,7 @@ export const LoginPage: React.FC = () => {
             <p className="text-sm text-gray-600 mb-3">Usuarios de prueba:</p>
             <div className="space-y-2">
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 className="w-full text-xs"
@@ -178,6 +234,7 @@ export const LoginPage: React.FC = () => {
                 <strong>Administrador:</strong> admin@tienda.com
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 className="w-full text-xs"
@@ -196,5 +253,4 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
-
 

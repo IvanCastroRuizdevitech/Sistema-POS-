@@ -84,13 +84,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (correo: string, contraseña: string): Promise<boolean> => {
-    console.log('AuthContext: login function called'); // Debug log
+    console.log('AuthContext: login function called with:', correo); // Debug log
     try {
       setLoading(true);
+      console.log('AuthContext: Calling authApiService.login...'); // Debug log
+      
       const response: AuthResponse = await authApiService.login({
         email: correo,
         password: contraseña,
       });
+
+      console.log('AuthContext: Login response received:', response); // Debug log
 
       // Convert API response to local types
       const convertedUser: Usuario = {
@@ -123,10 +127,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setPersona(convertedPersona);
       setRol(convertedRol);
 
+      console.log('AuthContext: Login successful'); // Debug log
       return true;
     } catch (error: any) {
-      console.error('Login error:', error);
-      return false;
+      console.error('AuthContext: Login error:', error);
+      console.error('AuthContext: Error message:', error.message);
+      console.error('AuthContext: Error response:', error.response);
+      
+      // Re-throw the error so it can be handled by the component
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -167,5 +176,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
 

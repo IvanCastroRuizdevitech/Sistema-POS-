@@ -17,14 +17,9 @@ export const LoginPage: React.FC = () => {
   const { login, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated && !authLoading) {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, authLoading, navigate]);
-
   const handleSubmit = async (e: React.FormEvent) => {
+
+    console.log('Handling login submit');
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -50,6 +45,9 @@ export const LoginPage: React.FC = () => {
     setError('');
     setLoading(true);
 
+    console.log(`Handling demo login for ${email}`);
+    console.log(`password: ${password}`);
+
     try {
       const success = await login(email, password);
       if (success) {
@@ -64,6 +62,16 @@ export const LoginPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      console.log('User is already authenticated, redirecting to dashboard');
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, authLoading, navigate]);
+
+  console.log('LoginPage rendered');
 
   // Show loading spinner while checking authentication
   if (authLoading) {
@@ -99,7 +107,7 @@ export const LoginPage: React.FC = () => {
                 id="correo"
                 type="email"
                 value={correo}
-                onChange={(e) => setCorreo(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCorreo(e.target.value)}
                 placeholder="usuario@ejemplo.com"
                 required
                 disabled={loading}
@@ -108,12 +116,12 @@ export const LoginPage: React.FC = () => {
             
             <div className="space-y-2">
               <Label htmlFor="contraseña">Contraseña</Label>
-              <div className="relative">
+                <div className="relative">
                 <Input
                   id="contraseña"
                   type={showPassword ? 'text' : 'password'}
                   value={contraseña}
-                  onChange={(e) => setContraseña(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setContraseña(e.target.value)}
                   placeholder="••••••••"
                   required
                   disabled={loading}
@@ -127,12 +135,12 @@ export const LoginPage: React.FC = () => {
                   disabled={loading}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-4 w-4" />
                   ) : (
-                    <Eye className="h-4 w-4" />
+                  <Eye className="h-4 w-4" />
                   )}
                 </Button>
-              </div>
+                </div>
             </div>
 
             {error && (

@@ -19,6 +19,7 @@ export const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    console.log('LoginPage: handleSubmit triggered'); // Debug log
 
     try {
       const success = await login(correo, contraseña);
@@ -46,6 +47,7 @@ export const LoginPage: React.FC = () => {
     setCorreo(email);
     setContraseña(password);
     setLoading(true);
+    console.log(`LoginPage: handleDemoLogin triggered for ${email}`); // Debug log
 
     try {
       const success = await login(email, password);

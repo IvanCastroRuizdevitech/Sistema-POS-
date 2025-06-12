@@ -84,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (correo: string, contraseña: string): Promise<boolean> => {
+    console.log('AuthContext: login function called'); // Debug log
     try {
       setLoading(true);
       const response: AuthResponse = await authApiService.login({
@@ -166,4 +167,5 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
 

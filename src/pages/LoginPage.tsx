@@ -5,35 +5,38 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Eye, EyeOff, Store, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const LoginPage: React.FC = () => {
   const [correo, setCorreo] = useState('');
   const [contraseña, setContraseña] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
-
-    console.log('Handling login submit');
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
       const success = await login(correo, contraseña);
       if (success) {
+        toast.success('¡Inicio de sesión exitoso!', {
+          description: 'Redirigiendo al dashboard...',
+        });
         navigate('/dashboard');
       } else {
-        setError('Credenciales incorrectas. Verifique su correo y contraseña.');
+        toast.error('Credenciales incorrectas.', {
+          description: 'Verifique su correo y contraseña.',
+        });
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.message || 'Error al iniciar sesión. Intente nuevamente.');
+      toast.error('Error al iniciar sesión.', {
+        description: err.message || 'Intente nuevamente.',
+      });
     } finally {
       setLoading(false);
     }
@@ -42,22 +45,25 @@ export const LoginPage: React.FC = () => {
   const handleDemoLogin = async (email: string, password: string) => {
     setCorreo(email);
     setContraseña(password);
-    setError('');
     setLoading(true);
-
-    console.log(`Handling demo login for ${email}`);
-    console.log(`password: ${password}`);
 
     try {
       const success = await login(email, password);
       if (success) {
+        toast.success('¡Inicio de sesión de demo exitoso!', {
+          description: 'Redirigiendo al dashboard...',
+        });
         navigate('/dashboard');
       } else {
-        setError('Error al iniciar sesión con usuario de prueba.');
+        toast.error('Error al iniciar sesión con usuario de prueba.', {
+          description: 'Verifique las credenciales de demo.',
+        });
       }
     } catch (err: any) {
       console.error('Demo login error:', err);
-      setError(err.message || 'Error al iniciar sesión. Intente nuevamente.');
+      toast.error('Error al iniciar sesión de demo.', {
+        description: err.message || 'Intente nuevamente.',
+      });
     } finally {
       setLoading(false);
     }
@@ -70,8 +76,6 @@ export const LoginPage: React.FC = () => {
       navigate('/dashboard');
     }
   }, [isAuthenticated, authLoading, navigate]);
-
-  console.log('LoginPage rendered');
 
   // Show loading spinner while checking authentication
   if (authLoading) {
@@ -143,12 +147,6 @@ export const LoginPage: React.FC = () => {
                 </div>
             </div>
 
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription className="">{error}</AlertDescription>
-              </Alert>
-            )}
-
             <Button 
               type="submit" 
               className="w-full" 
@@ -196,4 +194,5 @@ export const LoginPage: React.FC = () => {
     </div>
   );
 };
+
 

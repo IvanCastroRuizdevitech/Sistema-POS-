@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CompañiaService } from '../services/CompañiaService';
-import { Compañia } from '../types';
+import companiesApiService from '../services/api/companiesApiService';
+import { Company } from '../services/api/companiesApiService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,11 +11,23 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Plus, Edit, Trash2, Building, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const CompañiasPage: React.FC = () => {
-  const [compañias, setCompañias] = useState<Compañia[]>([]);
+  const [compañias, setCompañias] = useState<Company[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCompañia, setEditingCompañia] = useState<Compañia | null>(null);
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [companyToDelete, setCompanyToDelete] = useState<string | null>(null);
+  const [editingCompañia, setEditingCompañia] = useState<Company | null>(null);
   const [formData, setFormData] = useState({
     nombre: '',
     nit: '',
@@ -34,7 +46,7 @@ export const CompañiasPage: React.FC = () => {
   const loadCompañias = async () => {
     try {
       setPageLoading(true);
-      const data = await CompañiaService.getAll();
+      const data = await companiesApiService.getAll();
       setCompañias(data);
       if (data.length === 0) {
         setError('No hay compañías registradas.');
@@ -59,12 +71,12 @@ export const CompañiasPage: React.FC = () => {
 
     try {
       if (editingCompañia) {
-        await CompañiaService.update(editingCompañia.id, formData);
+        await companiesApiService.update(editingCompañia.id, formData);
         toast.success('¡Compañia editada exitosamente!', {
           description: 'Listando Compañias...',
         });
       } else {
-        await CompañiaService.create(formData);
+        await companiesApiService.create(formData);
         toast.success('¡Compañia creada exitosamente!', {
           description: 'Listando Compañias...',
         });
@@ -83,7 +95,7 @@ export const CompañiasPage: React.FC = () => {
     }
   };
 
-  const handleEdit = (compañia: Compañia) => {
+  const handleEdit = (compañia: Company) => {
     setEditingCompañia(compañia);
     setFormData({
       nombre: compañia.nombre,
@@ -95,20 +107,28 @@ export const CompañiasPage: React.FC = () => {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('¿Está seguro de que desea eliminar esta compañía?')) {
-      try {
-        setError('');
-        await CompañiaService.delete(id);
-        toast.success('¡Compañía eliminada exitosamente!', {
-          description: 'Listando Compañias...',
-        });
-        await loadCompañias();
-      } catch (err: any) {
-        toast.error('❌ Error al eliminar la compañía');
-        console.error('Error deleting company:', err);
-        setError(err.message || 'Error al eliminar la compañía');
-      }
+  const confirmDelete = (id: string) => {
+    setCompanyToDelete(id);
+    setIsAlertDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!companyToDelete) return;
+    
+    try {
+      setError('');
+      await companiesApiService.delete(companyToDelete);
+      toast.success('¡Compañía eliminada exitosamente!', {
+        description: 'Listando Compañias...',
+      });
+      await loadCompañias();
+    } catch (err: any) {
+      toast.error('❌ Error al eliminar la compañía');
+      console.error('Error deleting company:', err);
+      setError(err.message || 'Error al eliminar la compañía');
+    } finally {
+      setIsAlertDialogOpen(false);
+      setCompanyToDelete(null);
     }
   };
 
@@ -227,7 +247,7 @@ export const CompañiasPage: React.FC = () => {
                 {error && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="">{error}</AlertDescription>
+                    <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
               </div>
@@ -254,12 +274,12 @@ export const CompañiasPage: React.FC = () => {
       {error && !isDialogOpen && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="">{error}</AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       <Card>
-        <CardHeader className="">
+        <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building className="h-5 w-5" />
             Lista de Compañías
@@ -309,7 +329,7 @@ export const CompañiasPage: React.FC = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleDelete(compañia.id)}
+                            onClick={() => confirmDelete(compañia.id)}
                             disabled={loading}
                           >
                             <Trash2 className="h-4 w-4" />
@@ -324,7 +344,23 @@ export const CompañiasPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Está seguro de eliminar esta compañía?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. La compañía será eliminada permanentemente del sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
-

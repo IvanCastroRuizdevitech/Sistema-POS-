@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TiendaService } from '../services/TiendaService';
-import { CompañiaService } from '../services/CompañiaService';
-import { Tienda, Compañia } from '../types';
+import storesApiService, { Store, CreateStoreRequest, UpdateStoreRequest } from '../services/api/storesApiService';
+import companiesApiService, { Company } from '../services/api/companiesApiService';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,32 +9,61 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Edit, Trash2, Store } from 'lucide-react';
+import { Plus, Edit, Trash2, Store as StoreIcon, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const TiendasPage: React.FC = () => {
-  const [tiendas, setTiendas] = useState<Tienda[]>([]);
-  const [compañias, setCompañias] = useState<Compañia[]>([]);
+  const [tiendas, setTiendas] = useState<Store[]>([]);
+  const [compañias, setCompañias] = useState<Company[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingTienda, setEditingTienda] = useState<Tienda | null>(null);
-  const [formData, setFormData] = useState({
+  const [isAlertDialogOpen, setIsAlertDialogOpen] = useState(false);
+  const [storeToDelete, setStoreToDelete] = useState<string | null>(null);
+  const [editingTienda, setEditingTienda] = useState<Store | null>(null);
+  const [formData, setFormData] = useState<CreateStoreRequest>({
     nombre: '',
     direccion: '',
-    compañia_id: '',
+    compania_id: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadTiendas();
     loadCompañias();
   }, []);
 
-  const loadTiendas = () => {
-    setTiendas(TiendaService.getAll());
+  const loadTiendas = async () => {
+    setIsLoading(true);
+    try {
+      const data = await storesApiService.getAll();
+      setTiendas(data);
+    } catch (error) {
+      console.error('Error cargando tiendas:', error);
+      toast.error('No se pudieron cargar las tiendas');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const loadCompañias = () => {
-    setCompañias(CompañiaService.getAll());
+  const loadCompañias = async () => {
+    try {
+      const data = await companiesApiService.getAll();
+      setCompañias(data);
+    } catch (error) {
+      console.error('Error cargando compañías:', error);
+      toast.error('No se pudieron cargar las compañías');
+    }
   };
 
   const getCompañiaNombre = (compañiaId: string) => {
@@ -50,39 +78,53 @@ export const TiendasPage: React.FC = () => {
 
     try {
       if (editingTienda) {
-        TiendaService.update(editingTienda.id, formData);
+        await storesApiService.update(editingTienda.id, formData as UpdateStoreRequest);
+        toast.success('Tienda actualizada exitosamente');
       } else {
-        TiendaService.create(formData);
+        await storesApiService.create(formData);
+        toast.success('Tienda creada exitosamente');
       }
       
-      loadTiendas();
+      await loadTiendas();
       setIsDialogOpen(false);
       resetForm();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al guardar la tienda');
+    } catch (err: any) {
+      setError(err.message || 'Error al guardar la tienda');
+      toast.error(`Error: ${err.message || 'Error al guardar la tienda'}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = (tienda: Tienda) => {
+  const handleEdit = (tienda: Store) => {
     setEditingTienda(tienda);
     setFormData({
       nombre: tienda.nombre,
       direccion: tienda.direccion || '',
-      compañia_id: tienda.compañia_id,
+      compania_id: tienda.compania_id,
+      telefono: tienda.telefono,
+      email: tienda.email
     });
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('¿Está seguro de que desea eliminar esta tienda?')) {
-      try {
-        TiendaService.delete(id);
-        loadTiendas();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al eliminar la tienda');
-      }
+  const confirmDelete = (id: string) => {
+    setStoreToDelete(id);
+    setIsAlertDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!storeToDelete) return;
+    
+    try {
+      await storesApiService.delete(storeToDelete);
+      await loadTiendas();
+      toast.success('Tienda eliminada exitosamente');
+    } catch (err: any) {
+      toast.error(`Error: ${err.message || 'Error al eliminar la tienda'}`);
+    } finally {
+      setIsAlertDialogOpen(false);
+      setStoreToDelete(null);
     }
   };
 
@@ -90,7 +132,7 @@ export const TiendasPage: React.FC = () => {
     setFormData({
       nombre: '',
       direccion: '',
-      compañia_id: '',
+      compania_id: '',
     });
     setEditingTienda(null);
     setError('');
@@ -140,13 +182,13 @@ export const TiendasPage: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="compañia_id">Compañía *</Label>
+                  <Label htmlFor="compania_id">Compañía *</Label>
                   <Select
-                    value={formData.compañia_id}
-                    onValueChange={(value) => setFormData({ ...formData, compañia_id: value })}
+                    value={formData.compania_id}
+                    onValueChange={(value) => setFormData({ ...formData, compania_id: value })}
                     required
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Seleccione una compañía" />
                     </SelectTrigger>
                     <SelectContent>
@@ -159,12 +201,32 @@ export const TiendasPage: React.FC = () => {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="direccion">Dirección</Label>
+                  <Label htmlFor="direccion">Dirección *</Label>
                   <Input
                     id="direccion"
                     value={formData.direccion}
                     onChange={(e) => setFormData({ ...formData, direccion: e.target.value })}
                     placeholder="Dirección de la tienda"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="telefono">Teléfono</Label>
+                  <Input
+                    id="telefono"
+                    value={formData.telefono || ''}
+                    onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+                    placeholder="Teléfono de contacto"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email || ''}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="Correo electrónico"
                   />
                 </div>
                 {error && (
@@ -178,7 +240,14 @@ export const TiendasPage: React.FC = () => {
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={loading || compañias.length === 0}>
-                  {loading ? 'Guardando...' : (editingTienda ? 'Actualizar' : 'Crear')}
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {editingTienda ? 'Actualizando...' : 'Creando...'}
+                    </>
+                  ) : (
+                    editingTienda ? 'Actualizar' : 'Crear'
+                  )}
                 </Button>
               </DialogFooter>
             </form>
@@ -197,7 +266,7 @@ export const TiendasPage: React.FC = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Store className="h-5 w-5" />
+            <StoreIcon className="h-5 w-5" />
             Lista de Tiendas
           </CardTitle>
           <CardDescription>
@@ -205,9 +274,13 @@ export const TiendasPage: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {tiendas.length === 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : tiendas.length === 0 ? (
             <div className="text-center py-8">
-              <Store className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <StoreIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500">No hay tiendas registradas</p>
               <p className="text-sm text-gray-400">Haga clic en "Nueva Tienda" para comenzar</p>
             </div>
@@ -218,6 +291,8 @@ export const TiendasPage: React.FC = () => {
                   <TableHead>Nombre</TableHead>
                   <TableHead>Compañía</TableHead>
                   <TableHead>Dirección</TableHead>
+                  <TableHead>Teléfono</TableHead>
+                  <TableHead>Email</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -225,8 +300,10 @@ export const TiendasPage: React.FC = () => {
                 {tiendas.map((tienda) => (
                   <TableRow key={tienda.id}>
                     <TableCell className="font-medium">{tienda.nombre}</TableCell>
-                    <TableCell>{getCompañiaNombre(tienda.compañia_id)}</TableCell>
+                    <TableCell>{tienda.compania_nombre || getCompañiaNombre(tienda.compania_id)}</TableCell>
                     <TableCell>{tienda.direccion || '-'}</TableCell>
+                    <TableCell>{tienda.telefono || '-'}</TableCell>
+                    <TableCell>{tienda.email || '-'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
@@ -239,7 +316,7 @@ export const TiendasPage: React.FC = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDelete(tienda.id)}
+                          onClick={() => confirmDelete(tienda.id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -252,7 +329,23 @@ export const TiendasPage: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={isAlertDialogOpen} onOpenChange={setIsAlertDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Está seguro de eliminar esta tienda?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. La tienda será eliminada permanentemente del sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
-

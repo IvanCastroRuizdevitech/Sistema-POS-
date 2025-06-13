@@ -1,4 +1,5 @@
 import { apiClient } from './apiClient';
+import { toast } from 'sonner';
 
 export interface Company {
   id: string;
@@ -38,6 +39,7 @@ class CompaniesApiService {
       const response = await apiClient.get<Company[]>('/companies');
       return response;
     } catch (error: any) {
+      toast.error('❌ Error al obtener las compañías');
       console.error('Error fetching companies:', error);
       throw new Error(error.response?.data?.message || 'Error al obtener las compañías');
     }

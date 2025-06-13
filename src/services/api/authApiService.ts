@@ -44,20 +44,23 @@ export interface ValidateTokenResponse {
 }
 
 class AuthApiService {
-  async login(credentials: LoginRequest): Promise<AuthResponse> {
+  async login(credentials: LoginRequest): Promise<AuthResponse | null> {
     try {
       const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-      
+      // console.log('AuthContext: Login response received:', response); // Debug log
       // Store token and user data
       if (response.access_token) {
         apiClient.setAuthToken(response.access_token);
         localStorage.setItem('user_data', JSON.stringify(response.user));
+      }else{
+        return null
       }
       
       return response;
     } catch (error: any) {
-      console.error('Login error:', error);
-      throw new Error(error.response?.data?.message || 'Error al iniciar sesión');
+      // console.error('Login error:', error.response);
+      return error.response
+      // throw new Error(error.response?.data?.message || 'Error al iniciar sesión');
     }
   }
 

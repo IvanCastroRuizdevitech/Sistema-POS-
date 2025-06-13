@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        // console.error('Error initializing auth:', error);
         // If token validation fails, logout
         authApiService.logout();
       } finally {
@@ -84,58 +84,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (correo: string, contraseña: string): Promise<boolean> => {
-    console.log('AuthContext: login function called with:', correo); // Debug log
+    // console.log('AuthContext: login function called with:', correo); // Debug log
     try {
       setLoading(true);
-      console.log('AuthContext: Calling authApiService.login...'); // Debug log
+      // console.log('AuthContext: Calling authApiService.login...'); // Debug log
       
       const response: AuthResponse = await authApiService.login({
         email: correo,
         password: contraseña,
       });
 
-      console.log('AuthContext: Login response received:', response); // Debug log
+      if(response){
+            // Convert API response to local types
+            const convertedUser: Usuario = {
+              id: response.user.id,
+              persona_id: response.user.persona.id,
+              email: response.user.email,
+              password: '', // Don't store password
+              rol_id: response.user.rol.id,
+              fecha_creacion: new Date(),
+              activo: true,
+            };
 
-      // Convert API response to local types
-      const convertedUser: Usuario = {
-        id: response.user.id,
-        persona_id: response.user.persona.id,
-        email: response.user.email,
-        password: '', // Don't store password
-        rol_id: response.user.rol.id,
-        fecha_creacion: new Date(),
-        activo: true,
-      };
+            const convertedPersona: Persona = {
+              id: response.user.persona.id,
+              nombre: response.user.persona.nombre,
+              telefono: response.user.persona.telefono,
+              direccion: response.user.persona.direccion,
+              tipo_identificacion_id: response.user.persona.tipo_identificacion_id,
+              numero_identificacion: response.user.persona.numero_identificacion,
+              tipo: response.user.persona.tipo as any,
+            };
 
-      const convertedPersona: Persona = {
-        id: response.user.persona.id,
-        nombre: response.user.persona.nombre,
-        telefono: response.user.persona.telefono,
-        direccion: response.user.persona.direccion,
-        tipo_identificacion_id: response.user.persona.tipo_identificacion_id,
-        numero_identificacion: response.user.persona.numero_identificacion,
-        tipo: response.user.persona.tipo as any,
-      };
+            const convertedRol: Rol = {
+              id: response.user.rol.id,
+              nombre: response.user.rol.nombre,
+              permisos: response.user.rol.permisos,
+            };
 
-      const convertedRol: Rol = {
-        id: response.user.rol.id,
-        nombre: response.user.rol.nombre,
-        permisos: response.user.rol.permisos,
-      };
+            setUser(convertedUser);
+            setPersona(convertedPersona);
+            setRol(convertedRol);
 
-      setUser(convertedUser);
-      setPersona(convertedPersona);
-      setRol(convertedRol);
+            // console.log('AuthContext: Login successful'); // Debug log
+            return true;
+      }else{
+            // console.log('AuthContext: Login fail'); // Debug log   
+            return false;
+      }
 
-      console.log('AuthContext: Login successful'); // Debug log
-      return true;
+
     } catch (error: any) {
-      console.error('AuthContext: Login error:', error);
-      console.error('AuthContext: Error message:', error.message);
-      console.error('AuthContext: Error response:', error.response);
+      // console.error('AuthContext: Login error:', error);
+      // console.error('AuthContext: Error message:', error.message);
+      // console.error('AuthContext: Error response:', error.response);
       
       // Re-throw the error so it can be handled by the component
-      throw error;
+      return false;
     } finally {
       setLoading(false);
     }

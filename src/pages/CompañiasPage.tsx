@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ResponsiveTable } from '@/components/ui/responsive-table';
 import { Plus, Edit, Trash2, Building, Loader2, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 export const CompañiasPage: React.FC = () => {
   const [compañias, setCompañias] = useState<Compañia[]>([]);
@@ -35,6 +36,14 @@ export const CompañiasPage: React.FC = () => {
       setPageLoading(true);
       const data = await CompañiaService.getAll();
       setCompañias(data);
+      if (data.length === 0) {
+        setError('No hay compañías registradas.');
+        toast.success('¡No hay compañías registradas.!', {
+          description: 'Crea una nueva compañía ...',
+        });
+      } else {
+        setError('');
+      }
     } catch (err: any) {
       console.error('Error loading companies:', err);
       setError(err.message || 'Error al cargar las compañías');
@@ -51,14 +60,22 @@ export const CompañiasPage: React.FC = () => {
     try {
       if (editingCompañia) {
         await CompañiaService.update(editingCompañia.id, formData);
+        toast.success('¡Compañia editada exitosamente!', {
+          description: 'Listando Compañias...',
+        });
       } else {
         await CompañiaService.create(formData);
+        toast.success('¡Compañia creada exitosamente!', {
+          description: 'Listando Compañias...',
+        });
       }
       
       await loadCompañias();
+
       setIsDialogOpen(false);
       resetForm();
     } catch (err: any) {
+      toast.error('❌ Error al guardar la compañía');
       console.error('Error saving company:', err);
       setError(err.message || 'Error al guardar la compañía');
     } finally {
@@ -83,8 +100,12 @@ export const CompañiasPage: React.FC = () => {
       try {
         setError('');
         await CompañiaService.delete(id);
+        toast.success('¡Compañía eliminada exitosamente!', {
+          description: 'Listando Compañias...',
+        });
         await loadCompañias();
       } catch (err: any) {
+        toast.error('❌ Error al eliminar la compañía');
         console.error('Error deleting company:', err);
         setError(err.message || 'Error al eliminar la compañía');
       }

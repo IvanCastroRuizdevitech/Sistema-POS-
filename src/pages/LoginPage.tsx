@@ -14,27 +14,28 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { login, isAuthenticated, loading: authLoading } = useAuth();
+  const [ success, setSuccess ] = useState(true);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent any form submission behavior
     
-    console.log('LoginPage: handleSubmit triggered'); // Debug log
-    console.log('LoginPage: Form data:', { correo, contraseña: '***' }); // Debug log
+    // console.log('LoginPage: handleSubmit triggered'); // Debug log
+    // console.log('LoginPage: Form data:', { correo, contraseña: '***' }); // Debug log
     
-    if (loading) {
-      console.log('LoginPage: Already loading, ignoring submit');
-      return;
-    }
+    // if (loading) {
+    //    console.log('LoginPage: Already loading, ignoring submit');
+    //   return;
+    // }
     
     setLoading(true);
 
     try {
-      console.log('LoginPage: Calling login function...'); // Debug log
+      // console.log('LoginPage: Calling login function...'); // Debug log
       const success = await login(correo, contraseña);
       
-      console.log('LoginPage: Login result:', success); // Debug log
+      // console.log('LoginPage: Login result:', success); // Debug log
       
       if (success) {
         toast.success('¡Inicio de sesión exitoso!', {
@@ -47,21 +48,24 @@ export const LoginPage: React.FC = () => {
         });
       }
     } catch (err: any) {
-      console.error('LoginPage: Login error caught:', err);
-      console.error('LoginPage: Error message:', err.message);
-      console.error('LoginPage: Error response:', err.response);
+      // console.error('LoginPage: Login error caught:', err);
+      // console.error('LoginPage: Error message:', err.message);
+      // console.error('LoginPage: Error response:', err.response);
       
       let errorMessage = 'Error al iniciar sesión.';
       let errorDescription = 'Intente nuevamente.';
       
       if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
+        toast.error(`❌ ${errorMessage}`);
       } else if (err.message) {
         errorMessage = err.message;
+        toast.error(`❌ ${errorMessage}`);
       }
       
-      if (err.response?.status === 401) {
+      if (err.response?.status === 401 || err.response?.status === 400) {
         errorDescription = 'Credenciales incorrectas. Verifique su correo y contraseña.';
+        toast.error(`❌ ${errorDescription}`);
       }
       
       toast.error(errorMessage, {
@@ -73,10 +77,10 @@ export const LoginPage: React.FC = () => {
   };
 
   const handleDemoLogin = async (email: string, password: string) => {
-    console.log(`LoginPage: handleDemoLogin triggered for ${email}`); // Debug log
+    // console.log(`LoginPage: handleDemoLogin triggered for ${email}`); // Debug log
     
     if (loading) {
-      console.log('LoginPage: Already loading, ignoring demo login');
+      // console.log('LoginPage: Already loading, ignoring demo login');
       return;
     }
     
@@ -85,10 +89,10 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      console.log('LoginPage: Calling login function for demo...'); // Debug log
-      const success = await login(email, password);
+      // console.log('LoginPage: Calling login function for demo...'); // Debug log
+      const success = await login(correo, contraseña);
       
-      console.log('LoginPage: Demo login result:', success); // Debug log
+      // console.log('LoginPage: Demo login result:', success); // Debug log
       
       if (success) {
         toast.success('¡Inicio de sesión de demo exitoso!', {
@@ -101,21 +105,24 @@ export const LoginPage: React.FC = () => {
         });
       }
     } catch (err: any) {
-      console.error('LoginPage: Demo login error caught:', err);
-      console.error('LoginPage: Error message:', err.message);
-      console.error('LoginPage: Error response:', err.response);
+      // console.error('LoginPage: Demo login error caught:', err);
+      // console.error('LoginPage: Error message:', err.message);
+      // console.error('LoginPage: Error response:', err.response);
       
       let errorMessage = 'Error al iniciar sesión de demo.';
       let errorDescription = 'Intente nuevamente.';
       
       if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
+        toast.error(`❌ ${errorMessage}`);
       } else if (err.message) {
         errorMessage = err.message;
+        toast.error(`❌ ${errorMessage}`);
       }
       
       if (err.response?.status === 401) {
         errorDescription = 'Credenciales de demo incorrectas. Verifique que los usuarios existan en la base de datos.';
+        toast.error(`❌ ${errorDescription}`);
       }
       
       toast.error(errorMessage, {
@@ -243,7 +250,7 @@ export const LoginPage: React.FC = () => {
               >
                 <strong>Vendedor:</strong> vendedor@tienda.com
               </Button>
-            </div>
+            </div> 
             <div className="mt-3 text-xs text-gray-500">
               <p><strong>Nota:</strong> Estos usuarios deben existir en la base de datos del backend.</p>
             </div>
